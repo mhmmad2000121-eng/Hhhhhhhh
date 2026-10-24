@@ -1,0 +1,122 @@
+{
+  "entities": {
+    "WorkspaceNote": {
+      "title": "WorkspaceNote",
+      "description": "A private note stored in the user's cloud-synced workspace.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID of the authenticated note owner."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the note (1 to 120 characters)."
+        },
+        "content": {
+          "type": "string",
+          "description": "Body content of the note (up to 10,000 characters)."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category tag for organizing notes.",
+          "enum": ["Personal", "Work", "Finance", "Ideas", "Security"]
+        },
+        "isPinned": {
+          "type": "boolean",
+          "description": "Whether the note is pinned to the top of the workspace."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the note was created (clients must submit FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the note was last updated (clients must submit FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "content",
+        "category",
+        "isPinned",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "VaultItem": {
+      "title": "VaultItem",
+      "description": "A private vault record tracking imported local media or secure secrets.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID of the authenticated vault owner."
+        },
+        "title": {
+          "type": "string",
+          "description": "Display label for the vault item (1 to 120 characters)."
+        },
+        "itemType": {
+          "type": "string",
+          "description": "Type of vault entry.",
+          "enum": ["IMAGE", "SECRET", "DOCUMENT"]
+        },
+        "secretNote": {
+          "type": "string",
+          "description": "Optional secret text or caption associated with the item (up to 5,000 characters)."
+        },
+        "localFileName": {
+          "type": "string",
+          "description": "Internal private_media file name if stored on device (0 to 255 characters)."
+        },
+        "mimeType": {
+          "type": "string",
+          "description": "MIME type of the vault asset (1 to 100 characters)."
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "description": "Size of the item in bytes."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the vault item was created (clients must submit FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the vault item was last updated (clients must submit FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "itemType",
+        "secretNote",
+        "localFileName",
+        "mimeType",
+        "sizeBytes",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/notes/{noteId}": {
+      "schema": {
+        "$ref": "#/entities/WorkspaceNote"
+      },
+      "description": "User-scoped private workspace notes."
+    },
+    "/users/{userId}/vault_items/{itemId}": {
+      "schema": {
+        "$ref": "#/entities/VaultItem"
+      },
+      "description": "User-scoped private vault records and media metadata."
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Private Workspace</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_out">Sign out</string>
+    <string name="workspace_title">Private Workspace</string>
+    <string name="workspace_subtitle">Cloud-synced encrypted notes &amp; private media vault</string>
+    <string name="tab_notes">Notes</string>
+    <string name="tab_vault">Media Vault</string>
+    <string name="tab_security">Security</string>
+    <string name="new_note">New Note</string>
+    <string name="import_media">Import Media</string>
+    <string name="add_secret">Add Secret</string>
+    <string name="search_notes_hint">Search notes or categories…</string>
+    <string name="empty_notes_title">Your workspace is clear</string>
+    <string name="empty_notes_subtitle">Create a cloud-synced private note or pin key checklists for instant access across devices.</string>
+    <string name="empty_vault_title">Vault is empty</string>
+    <string name="empty_vault_subtitle">Import photos into private internal storage or store confidential text secrets synced with Firestore.</string>
+    <string name="pin_lock_title">Session Locked</string>
+    <string name="pin_lock_subtitle">Enter your 4-digit workspace PIN to resume</string>
+    <string name="unlock_button">Unlock Workspace</string>
+    <string name="lock_now">Lock Now</string>
+    <string name="restore_to_gallery">Export to Gallery</string>
+    <string name="delete_action">Delete</string>
+    <string name="save_action">Save</string>
+    <string name="cancel_action">Cancel</string>
+</resources>

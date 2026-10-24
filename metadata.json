@@ -1,0 +1,6 @@
+{
+  "name": "Private Workspace",
+  "description": "Cloud-synced private workspace, encrypted notes, and local media vault with Google Sign-In and Firebase Firestore.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,105 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidWorkspaceNote(data, userId) {
+      return data.keys().hasAll(['userId', 'title', 'content', 'category', 'isPinned', 'createdAt', 'updatedAt']) &&
+             data.keys().hasOnly(['userId', 'title', 'content', 'category', 'isPinned', 'createdAt', 'updatedAt']) &&
+             data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid && data.userId == userId &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.content is string && data.content.size() <= 10000 &&
+             data.category is string && data.category in ['Personal', 'Work', 'Finance', 'Ideas', 'Security'] &&
+             data.isPinned is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidVaultItem(data, userId) {
+      return data.keys().hasAll(['userId', 'title', 'itemType', 'secretNote', 'localFileName', 'mimeType', 'sizeBytes', 'createdAt', 'updatedAt']) &&
+             data.keys().hasOnly(['userId', 'title', 'itemType', 'secretNote', 'localFileName', 'mimeType', 'sizeBytes', 'createdAt', 'updatedAt']) &&
+             data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid && data.userId == userId &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.itemType is string && data.itemType in ['IMAGE', 'SECRET', 'DOCUMENT'] &&
+             data.secretNote is string && data.secretNote.size() <= 5000 &&
+             data.localFileName is string && data.localFileName.size() <= 255 &&
+             data.mimeType is string && data.mimeType.size() >= 1 && data.mimeType.size() <= 100 &&
+             data.sizeBytes is int && data.sizeBytes >= 0 && data.sizeBytes <= 1073741824 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId}/notes/{noteId} {
+      allow get: if isOwner(userId) && isValidId(userId) && isValidId(noteId) && existing().userId == request.auth.uid;
+      allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(noteId) &&
+                       isValidWorkspaceNote(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(noteId) &&
+                       isValidWorkspaceNote(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'category', 'isPinned', 'updatedAt']);
+
+      allow delete: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(noteId) &&
+                       existing().userId == request.auth.uid;
+    }
+
+    match /users/{userId}/vault_items/{itemId} {
+      allow get: if isOwner(userId) && isValidId(userId) && isValidId(itemId) && existing().userId == request.auth.uid;
+      allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(itemId) &&
+                       isValidVaultItem(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(itemId) &&
+                       isValidVaultItem(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['title', 'itemType', 'secretNote', 'localFileName', 'mimeType', 'sizeBytes', 'updatedAt']);
+
+      allow delete: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(itemId) &&
+                       existing().userId == request.auth.uid;
+    }
+  }
+}
